@@ -114,6 +114,14 @@ MCP_TRANSPORT=http MCP_HTTP_PORT=3000 node dist/index.js
 # MCP:    POST http://localhost:3000/mcp
 ```
 
+## Resources
+
+- [QuickBooks Online API v3 Reference](https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/account)
+- [Intuit Developer Portal](https://developer.intuit.com)
+- [QuickBooks OAuth 2.0 Guide](https://developer.intuit.com/app/developer/qbo/docs/develop/authentication-and-authorization/oauth-2.0)
+- [QBO Query Language Reference](https://developer.intuit.com/app/developer/qbo/docs/develop/explore-the-quickbooks-online-api/data-queries)
+- [MCP Protocol Spec](https://modelcontextprotocol.io)
+
 ## License
 
 MIT
