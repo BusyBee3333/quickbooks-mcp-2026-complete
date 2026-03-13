@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // QuickBooks Online MCP Server — Production Quality
-// V2: 171 tools covering the full QBO API surface — 50 tool modules
+// V3: 250+ tools covering the complete QBO API surface — 75 tool modules
 // Transport: stdio (default) or HTTP (MCP_TRANSPORT=http)
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -63,6 +63,33 @@ import { registerTools as registerTimeReportsTools } from "./tools/time_reports.
 import { registerTools as registerPaymentApplicationTools } from "./tools/payment_application.js";
 import { registerTools as registerCompanySnapshotTools } from "./tools/company_snapshot.js";
 import { registerTools as registerAccountOperationsTools } from "./tools/account_operations.js";
+
+// ── Round 4 tool groups (V3 expansion — 25 new modules) ──────────────────────
+import { registerTools as registerProfitLossAdvancedTools } from "./tools/profit_loss_advanced.js";
+import { registerTools as registerAgingReportsTools } from "./tools/aging_reports.js";
+import { registerTools as registerSalesDetailReportsTools } from "./tools/sales_detail_reports.js";
+import { registerTools as registerPurchaseReportsTools } from "./tools/purchase_reports.js";
+import { registerTools as registerProjectsTools } from "./tools/projects.js";
+import { registerTools as registerMileageTools } from "./tools/mileage.js";
+import { registerTools as registerAuditLogTools } from "./tools/audit_log.js";
+import { registerTools as registerJournalReportTools } from "./tools/journal_report.js";
+import { registerTools as registerBankFeedsTools } from "./tools/bank_feeds.js";
+import { registerTools as registerReconciliationTools } from "./tools/reconciliation.js";
+import { registerTools as registerPayrollReportsTools } from "./tools/payroll_reports.js";
+import { registerTools as registerEmployeeReportsTools } from "./tools/employee_reports.js";
+import { registerTools as registerMulticurrencyTools } from "./tools/multicurrency.js";
+import { registerTools as registerLocationManagementTools } from "./tools/location_management.js";
+import { registerTools as registerClassManagementTools } from "./tools/class_management.js";
+import { registerTools as registerRevenueRecognitionTools } from "./tools/revenue_recognition.js";
+import { registerTools as registerCashFlowAdvancedTools } from "./tools/cash_flow_advanced.js";
+import { registerTools as registerBudgetReportsTools } from "./tools/budget_reports.js";
+import { registerTools as registerInventoryReportsTools } from "./tools/inventory_reports.js";
+import { registerTools as registerTagsTools } from "./tools/tags.js";
+import { registerTools as registerTaxDetailTools } from "./tools/tax_detail.js";
+import { registerTools as registerAppConnectionsTools } from "./tools/app_connections.js";
+import { registerTools as registerPeriodComparisonReportsTools } from "./tools/period_comparison_reports.js";
+import { registerTools as registerCustomReportsTools } from "./tools/custom_reports.js";
+import { registerTools as registerFinancialAnalyticsTools } from "./tools/financial_analytics.js";
 
 const MCP_NAME = "quickbooks";
 const MCP_VERSION = "2.0.0";
@@ -180,7 +207,34 @@ async function main() {
   registerCompanySnapshotTools(server, client);     //  5: company_snapshot, purchases_by_product_service, open_purchase_orders_report, missing_checks_report, unbilled_time_report
   registerAccountOperationsTools(server, client);   //  5: create_account, update_account, list_inactive_accounts, list_bank_accounts, list_credit_card_accounts
 
-  const TOTAL_TOOLS = 171;
+  // Round 4 — V3 expansion (25 new modules, 80+ new tools)
+  registerProfitLossAdvancedTools(server, client);         //  5: profit_loss_by_class, profit_loss_by_location, profit_loss_comparison, balance_sheet_comparison, profit_loss_ytd
+  registerAgingReportsTools(server, client);               //  4: ar_aging_summary, ar_aging_detail, ap_aging_summary, ap_aging_detail
+  registerSalesDetailReportsTools(server, client);         //  5: sales_by_customer_detail, sales_by_product_detail, department_sales_report, class_sales_report, item_detail_report
+  registerPurchaseReportsTools(server, client);            //  5: purchase_by_vendor_summary, purchase_by_vendor_detail, purchase_by_product_summary, purchase_by_product_detail, expenses_by_vendor_detail
+  registerProjectsTools(server, client);                   //  5: list_projects, get_project, create_project, update_project, project_profitability_report
+  registerMileageTools(server, client);                    //  4: list_mileage_records, get_mileage_record, create_mileage_record, update_mileage_record
+  registerAuditLogTools(server, client);                   //  2: query_audit_log, get_audit_activity
+  registerJournalReportTools(server, client);              //  3: journal_report, transaction_list_with_splits, transaction_list_by_tag
+  registerBankFeedsTools(server, client);                  //  4: list_bank_transactions, get_bank_transaction, list_bank_rules, get_bank_rule
+  registerReconciliationTools(server, client);             //  4: bank_reconciliation_detail, bank_reconciliation_summary, reconciliation_history, list_reconciliations
+  registerPayrollReportsTools(server, client);             //  4: payroll_summary_report, payroll_detail_report, payroll_tax_and_wage_summary, payroll_liability_balances
+  registerEmployeeReportsTools(server, client);            //  3: employee_details_report, time_by_employee_report, time_by_customer_report
+  registerMulticurrencyTools(server, client);              //  4: list_currencies, get_currency, enable_currency, currency_exchange_rate_report
+  registerLocationManagementTools(server, client);         //  4: list_locations, get_location, create_location, update_location
+  registerClassManagementTools(server, client);            //  3: update_class, create_subclass, list_class_hierarchy
+  registerRevenueRecognitionTools(server, client);         //  4: list_revenue_recognition_rules, get_revenue_recognition_rule, revenue_recognition_report, deferred_revenue_report
+  registerCashFlowAdvancedTools(server, client);           //  3: statement_of_cash_flows, cash_flow_by_month, cash_flow_comparison
+  registerBudgetReportsTools(server, client);              //  3: budget_vs_actuals, budget_summary, create_budget
+  registerInventoryReportsTools(server, client);           //  4: inventory_valuation_detail, inventory_stock_status, physical_inventory_worksheet, list_inventory_items
+  registerTagsTools(server, client);                       //  4: list_tags, get_tag, create_tag, list_tag_groups
+  registerTaxDetailTools(server, client);                  //  4: sales_tax_liability_detail, taxable_sales_detail, tax_classification_list, tax_filing_history
+  registerAppConnectionsTools(server, client);             //  3: get_company_info_extended, get_preferences_extended, get_subscription_plan
+  registerPeriodComparisonReportsTools(server, client);    //  3: multi_period_profit_loss, rolling_12_month_revenue, quarterly_balance_sheet
+  registerCustomReportsTools(server, client);              //  4: account_list_report, customer_income_report, vendor_expenses_report, missing_checks_report
+  registerFinancialAnalyticsTools(server, client);         //  4: financial_kpis, open_transactions_summary, top_customers_by_revenue, unbilled_time_and_expenses
+
+  const TOTAL_TOOLS = 255;
 
   logger.info("server.tools_registered", {
     count: TOTAL_TOOLS,
@@ -306,7 +360,7 @@ async function startHttpTransport(server: McpServer) {
         server: MCP_NAME,
         version: MCP_VERSION,
         activeSessions: sessions.size,
-        totalTools: 171,
+        totalTools: 255,
       }));
       return;
     }
