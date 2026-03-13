@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // QuickBooks Online MCP Server — Production Quality
-// 20 tools covering customers, invoices, payments, bills, accounts, and financial reports
+// Round 2: 101 tools covering the full QBO API surface
 // Transport: stdio (default) or HTTP (MCP_TRANSPORT=http)
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -8,7 +8,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { QuickBooksClient } from "./client.js";
 import { logger } from "./logger.js";
 
-// Tool group registrars
+// ── Original tool groups ──────────────────────────────────────────────────────
 import { registerTools as registerHealthTools } from "./tools/health.js";
 import { registerTools as registerCustomersTools } from "./tools/customers.js";
 import { registerTools as registerInvoicesTools } from "./tools/invoices.js";
@@ -26,8 +26,32 @@ import { registerTools as registerDepartmentsTools } from "./tools/departments.j
 import { registerTools as registerTimeActivitiesTools } from "./tools/time_activities.js";
 import { registerTools as registerTaxTools } from "./tools/tax.js";
 
+// ── Round 2 tool groups ───────────────────────────────────────────────────────
+import { registerTools as registerCreditMemosTools } from "./tools/credit_memos.js";
+import { registerTools as registerSalesReceiptsTools } from "./tools/sales_receipts.js";
+import { registerTools as registerJournalEntriesTools } from "./tools/journal_entries.js";
+import { registerTools as registerCreditCardChargesTools } from "./tools/credit_card_charges.js";
+import { registerTools as registerDepositsTools } from "./tools/deposits.js";
+import { registerTools as registerTransfersTools } from "./tools/transfers.js";
+import { registerTools as registerBudgetsTools } from "./tools/budgets.js";
+import { registerTools as registerRecurringTransactionsTools } from "./tools/recurring_transactions.js";
+import { registerTools as registerAttachmentsTools } from "./tools/attachments.js";
+import { registerTools as registerPreferencesTools } from "./tools/preferences.js";
+import { registerTools as registerCompanyInfoTools } from "./tools/company_info.js";
+
 const MCP_NAME = "quickbooks";
-const MCP_VERSION = "1.0.0";
+const MCP_VERSION = "2.0.0";
+
+// Tool count breakdown:
+//   Round 1 (60): health(1) + customers(4) + invoices(6) + payments(3) + bills(5)
+//                 + accounts(2) + reports(6) + vendors(4) + items(5) + estimates(4)
+//                 + purchase_orders(4) + employees(4) + classes(3) + departments(3)
+//                 + time_activities(3) + tax(3)
+//   Round 2 new tools (38):
+//     credit_memos(4) + sales_receipts(4) + journal_entries(3) + credit_card_charges(3)
+//     + deposits(3) + transfers(3) + budgets(2) + recurring_transactions(2)
+//     + attachments(4) + preferences(2) + company_info(2) + new_reports(9)
+//   TOTAL: 101
 
 async function main() {
   // ── Validate environment ─────────────────────────────────────────────────
@@ -71,13 +95,18 @@ async function main() {
   });
 
   // ── Register all tool groups ─────────────────────────────────────────────
+  // Round 1 — original 60 tools
   registerHealthTools(server, client);          //  1: health_check
   registerCustomersTools(server, client);       //  4: list_customers, get_customer, create_customer, update_customer
   registerInvoicesTools(server, client);        //  6: list_invoices, get_invoice, create_invoice, update_invoice, send_invoice, delete_invoice
   registerPaymentsTools(server, client);        //  3: list_payments, get_payment, create_payment
   registerBillsTools(server, client);           //  5: list_bills, get_bill, create_bill, update_bill, delete_bill
   registerAccountsTools(server, client);        //  2: list_accounts, get_account
-  registerReportsTools(server, client);         //  6: profit_loss_report, balance_sheet_report, profit_and_loss_detail, accounts_receivable_aging, accounts_payable_aging, customer_balance_detail
+  registerReportsTools(server, client);         // 15: profit_loss_report, balance_sheet_report, profit_and_loss_detail,
+                                                //     accounts_receivable_aging, accounts_payable_aging, customer_balance_detail,
+                                                //     vendor_balance_detail, trial_balance, general_ledger, transaction_list,
+                                                //     inventory_valuation_summary, sales_by_customer_summary,
+                                                //     sales_by_product_service_summary, aged_payables, cash_flow
   registerVendorsTools(server, client);         //  4: list_vendors, get_vendor, create_vendor, update_vendor
   registerItemsTools(server, client);           //  5: list_items, get_item, create_item, update_item, delete_item
   registerEstimatesTools(server, client);       //  4: list_estimates, get_estimate, create_estimate, convert_estimate_to_invoice
@@ -87,12 +116,27 @@ async function main() {
   registerDepartmentsTools(server, client);     //  3: list_departments, get_department, create_department
   registerTimeActivitiesTools(server, client);  //  3: list_time_activities, get_time_activity, create_time_activity
   registerTaxTools(server, client);             //  3: list_tax_codes, list_tax_rates, get_tax_code
-  // Total: 60 tools
+
+  // Round 2 — new 38 tools
+  registerCreditMemosTools(server, client);         //  4: list_credit_memos, get_credit_memo, create_credit_memo, void_credit_memo
+  registerSalesReceiptsTools(server, client);       //  4: list_sales_receipts, get_sales_receipt, create_sales_receipt, void_sales_receipt
+  registerJournalEntriesTools(server, client);      //  3: list_journal_entries, get_journal_entry, create_journal_entry
+  registerCreditCardChargesTools(server, client);   //  3: list_credit_card_charges, get_credit_card_charge, create_credit_card_charge
+  registerDepositsTools(server, client);            //  3: list_deposits, get_deposit, create_deposit
+  registerTransfersTools(server, client);           //  3: list_transfers, get_transfer, create_transfer
+  registerBudgetsTools(server, client);             //  2: list_budgets, get_budget
+  registerRecurringTransactionsTools(server, client); //  2: list_recurring_transactions, get_recurring_transaction
+  registerAttachmentsTools(server, client);         //  4: list_attachments, upload_attachment, get_attachment, delete_attachment
+  registerPreferencesTools(server, client);         //  2: get_preferences, update_preferences
+  registerCompanyInfoTools(server, client);         //  2: get_company_info, update_company_info
+  // + 9 new report tools added inline to registerReportsTools above
+
+  const TOTAL_TOOLS = 101;
 
   logger.info("server.tools_registered", {
-    count: 60,
+    count: TOTAL_TOOLS,
     tools: [
-      // Core
+      // Health (1)
       "health_check",
       // Customers (4)
       "list_customers", "get_customer", "create_customer", "update_customer",
@@ -104,9 +148,12 @@ async function main() {
       "list_bills", "get_bill", "create_bill", "update_bill", "delete_bill",
       // Accounts (2)
       "list_accounts", "get_account",
-      // Reports (6)
+      // Reports (15 — 6 original + 9 new)
       "profit_loss_report", "balance_sheet_report", "profit_and_loss_detail",
       "accounts_receivable_aging", "accounts_payable_aging", "customer_balance_detail",
+      "vendor_balance_detail", "trial_balance", "general_ledger", "transaction_list",
+      "inventory_valuation_summary", "sales_by_customer_summary",
+      "sales_by_product_service_summary", "aged_payables", "cash_flow",
       // Vendors (4)
       "list_vendors", "get_vendor", "create_vendor", "update_vendor",
       // Items (5)
@@ -125,6 +172,28 @@ async function main() {
       "list_time_activities", "get_time_activity", "create_time_activity",
       // Tax (3)
       "list_tax_codes", "list_tax_rates", "get_tax_code",
+      // Credit Memos (4)
+      "list_credit_memos", "get_credit_memo", "create_credit_memo", "void_credit_memo",
+      // Sales Receipts (4)
+      "list_sales_receipts", "get_sales_receipt", "create_sales_receipt", "void_sales_receipt",
+      // Journal Entries (3)
+      "list_journal_entries", "get_journal_entry", "create_journal_entry",
+      // Credit Card Charges (3)
+      "list_credit_card_charges", "get_credit_card_charge", "create_credit_card_charge",
+      // Deposits (3)
+      "list_deposits", "get_deposit", "create_deposit",
+      // Transfers (3)
+      "list_transfers", "get_transfer", "create_transfer",
+      // Budgets (2)
+      "list_budgets", "get_budget",
+      // Recurring Transactions (2)
+      "list_recurring_transactions", "get_recurring_transaction",
+      // Attachments (4)
+      "list_attachments", "upload_attachment", "get_attachment", "delete_attachment",
+      // Preferences (2)
+      "get_preferences", "update_preferences",
+      // Company Info (2)
+      "get_company_info", "update_company_info",
     ],
   });
 
@@ -188,6 +257,7 @@ async function startHttpTransport(server: McpServer) {
         server: MCP_NAME,
         version: MCP_VERSION,
         activeSessions: sessions.size,
+        totalTools: 101,
       }));
       return;
     }
