@@ -258,4 +258,34 @@ export function registerTools(server: McpServer, client: QuickBooksClient): void
       };
     }
   );
+
+  // ── delete_invoice ─────────────────────────────────────────────────────────
+  server.registerTool(
+    "delete_invoice",
+    {
+      title: "Delete QuickBooks Invoice",
+      description:
+        "Delete (void) a QuickBooks invoice. Requires invoiceId and syncToken (from get_invoice). Only invoices with no payments applied can be deleted. For paid invoices, void or credit memo is recommended instead.",
+      inputSchema: {
+        invoiceId: z.string().describe("Invoice ID to delete"),
+        syncToken: z.string().describe("SyncToken from get_invoice (required for optimistic locking)"),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false },
+    },
+    async (args) => {
+      const result = await logger.time(
+        "tool.delete_invoice",
+        () => client.post("/invoice?operation=delete", {
+          Id: args.invoiceId,
+          SyncToken: args.syncToken,
+        }),
+        { tool: "delete_invoice", invoiceId: args.invoiceId as string }
+      );
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+        structuredContent: result as Record<string, unknown>,
+      };
+    }
+  );
 }

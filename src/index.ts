@@ -16,6 +16,15 @@ import { registerTools as registerPaymentsTools } from "./tools/payments.js";
 import { registerTools as registerBillsTools } from "./tools/bills.js";
 import { registerTools as registerAccountsTools } from "./tools/accounts.js";
 import { registerTools as registerReportsTools } from "./tools/reports.js";
+import { registerTools as registerVendorsTools } from "./tools/vendors.js";
+import { registerTools as registerItemsTools } from "./tools/items.js";
+import { registerTools as registerEstimatesTools } from "./tools/estimates.js";
+import { registerTools as registerPurchaseOrdersTools } from "./tools/purchase_orders.js";
+import { registerTools as registerEmployeesTools } from "./tools/employees.js";
+import { registerTools as registerClassesTools } from "./tools/classes.js";
+import { registerTools as registerDepartmentsTools } from "./tools/departments.js";
+import { registerTools as registerTimeActivitiesTools } from "./tools/time_activities.js";
+import { registerTools as registerTaxTools } from "./tools/tax.js";
 
 const MCP_NAME = "quickbooks";
 const MCP_VERSION = "1.0.0";
@@ -62,25 +71,60 @@ async function main() {
   });
 
   // ── Register all tool groups ─────────────────────────────────────────────
-  registerHealthTools(server, client);   // 1: health_check
-  registerCustomersTools(server, client); // 4: list_customers, get_customer, create_customer, update_customer
-  registerInvoicesTools(server, client); // 5: list_invoices, get_invoice, create_invoice, update_invoice, send_invoice
-  registerPaymentsTools(server, client); // 3: list_payments, get_payment, create_payment
-  registerBillsTools(server, client);    // 3: list_bills, get_bill, create_bill
-  registerAccountsTools(server, client); // 2: list_accounts, get_account
-  registerReportsTools(server, client);  // 2: profit_loss_report, balance_sheet_report
-  // Total: 20 tools
+  registerHealthTools(server, client);          //  1: health_check
+  registerCustomersTools(server, client);       //  4: list_customers, get_customer, create_customer, update_customer
+  registerInvoicesTools(server, client);        //  6: list_invoices, get_invoice, create_invoice, update_invoice, send_invoice, delete_invoice
+  registerPaymentsTools(server, client);        //  3: list_payments, get_payment, create_payment
+  registerBillsTools(server, client);           //  5: list_bills, get_bill, create_bill, update_bill, delete_bill
+  registerAccountsTools(server, client);        //  2: list_accounts, get_account
+  registerReportsTools(server, client);         //  6: profit_loss_report, balance_sheet_report, profit_and_loss_detail, accounts_receivable_aging, accounts_payable_aging, customer_balance_detail
+  registerVendorsTools(server, client);         //  4: list_vendors, get_vendor, create_vendor, update_vendor
+  registerItemsTools(server, client);           //  5: list_items, get_item, create_item, update_item, delete_item
+  registerEstimatesTools(server, client);       //  4: list_estimates, get_estimate, create_estimate, convert_estimate_to_invoice
+  registerPurchaseOrdersTools(server, client);  //  4: list_purchase_orders, get_purchase_order, create_purchase_order, update_purchase_order
+  registerEmployeesTools(server, client);       //  4: list_employees, get_employee, create_employee, update_employee
+  registerClassesTools(server, client);         //  3: list_classes, get_class, create_class
+  registerDepartmentsTools(server, client);     //  3: list_departments, get_department, create_department
+  registerTimeActivitiesTools(server, client);  //  3: list_time_activities, get_time_activity, create_time_activity
+  registerTaxTools(server, client);             //  3: list_tax_codes, list_tax_rates, get_tax_code
+  // Total: 60 tools
 
   logger.info("server.tools_registered", {
-    count: 20,
+    count: 60,
     tools: [
+      // Core
       "health_check",
+      // Customers (4)
       "list_customers", "get_customer", "create_customer", "update_customer",
-      "list_invoices", "get_invoice", "create_invoice", "update_invoice", "send_invoice",
+      // Invoices (6)
+      "list_invoices", "get_invoice", "create_invoice", "update_invoice", "send_invoice", "delete_invoice",
+      // Payments (3)
       "list_payments", "get_payment", "create_payment",
-      "list_bills", "get_bill", "create_bill",
+      // Bills (5)
+      "list_bills", "get_bill", "create_bill", "update_bill", "delete_bill",
+      // Accounts (2)
       "list_accounts", "get_account",
-      "profit_loss_report", "balance_sheet_report",
+      // Reports (6)
+      "profit_loss_report", "balance_sheet_report", "profit_and_loss_detail",
+      "accounts_receivable_aging", "accounts_payable_aging", "customer_balance_detail",
+      // Vendors (4)
+      "list_vendors", "get_vendor", "create_vendor", "update_vendor",
+      // Items (5)
+      "list_items", "get_item", "create_item", "update_item", "delete_item",
+      // Estimates (4)
+      "list_estimates", "get_estimate", "create_estimate", "convert_estimate_to_invoice",
+      // Purchase Orders (4)
+      "list_purchase_orders", "get_purchase_order", "create_purchase_order", "update_purchase_order",
+      // Employees (4)
+      "list_employees", "get_employee", "create_employee", "update_employee",
+      // Classes (3)
+      "list_classes", "get_class", "create_class",
+      // Departments (3)
+      "list_departments", "get_department", "create_department",
+      // Time Activities (3)
+      "list_time_activities", "get_time_activity", "create_time_activity",
+      // Tax (3)
+      "list_tax_codes", "list_tax_rates", "get_tax_code",
     ],
   });
 

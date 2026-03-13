@@ -1,4 +1,4 @@
-// Bills tools: list_bills, get_bill, create_bill
+// Bills tools: list_bills, get_bill, create_bill, update_bill, delete_bill
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { QuickBooksClient } from "../client.js";
@@ -159,6 +159,123 @@ export function registerTools(server: McpServer, client: QuickBooksClient): void
         "tool.create_bill",
         () => client.post("/bill", bill),
         { tool: "create_bill", vendorId: args.vendorId as string }
+      );
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+        structuredContent: result as Record<string, unknown>,
+      };
+    }
+  );
+
+  // ── update_bill ────────────────────────────────────────────────────────────
+  server.registerTool(
+    "update_bill",
+    {
+      title: "Update QuickBooks Bill",
+      description:
+        "Update an existing QuickBooks accounts payable bill. Requires billId and syncToken (from get_bill). Supports sparse update — only provided fields are modified.",
+      inputSchema: {
+        billId: z.string().describe("Bill ID (from list_bills or get_bill)"),
+        syncToken: z.string().describe("SyncToken from get_bill (required for optimistic locking)"),
+        txnDate: z.string().optional().describe("New bill date (YYYY-MM-DD)"),
+        dueDate: z.string().optional().describe("New due date (YYYY-MM-DD)"),
+        docNumber: z.string().optional().describe("New vendor bill/invoice number"),
+        privateNote: z.string().optional().describe("New private note"),
+        lineItems: z
+          .array(
+            z.object({
+              amount: z.number().describe("Line item amount"),
+              description: z.string().optional().describe("Line description"),
+              accountId: z.string().optional().describe("Expense account ID"),
+              itemId: z.string().optional().describe("Item ID"),
+              quantity: z.number().optional().describe("Quantity"),
+              unitPrice: z.number().optional().describe("Unit price"),
+            })
+          )
+          .optional()
+          .describe("Replace all line items"),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    },
+    async (args) => {
+      const bill: Record<string, unknown> = {
+        Id: args.billId,
+        SyncToken: args.syncToken,
+        sparse: true,
+      };
+
+      if (args.txnDate) bill.TxnDate = args.txnDate;
+      if (args.dueDate) bill.DueDate = args.dueDate;
+      if (args.docNumber) bill.DocNumber = args.docNumber;
+      if (args.privateNote) bill.PrivateNote = args.privateNote;
+
+      if (args.lineItems) {
+        bill.Line = (args.lineItems as Array<{
+          amount: number;
+          description?: string;
+          accountId?: string;
+          itemId?: string;
+          quantity?: number;
+          unitPrice?: number;
+        }>).map((item) => {
+          if (item.itemId) {
+            return {
+              Amount: item.amount,
+              DetailType: "ItemBasedExpenseLineDetail",
+              ...(item.description ? { Description: item.description } : {}),
+              ItemBasedExpenseLineDetail: {
+                ItemRef: { value: item.itemId },
+                ...(item.quantity !== undefined ? { Qty: item.quantity } : {}),
+                ...(item.unitPrice !== undefined ? { UnitPrice: item.unitPrice } : {}),
+              },
+            };
+          }
+          return {
+            Amount: item.amount,
+            DetailType: "AccountBasedExpenseLineDetail",
+            ...(item.description ? { Description: item.description } : {}),
+            AccountBasedExpenseLineDetail: {
+              AccountRef: { value: item.accountId || "" },
+            },
+          };
+        });
+      }
+
+      const result = await logger.time(
+        "tool.update_bill",
+        () => client.post("/bill", bill),
+        { tool: "update_bill", billId: args.billId as string }
+      );
+
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+        structuredContent: result as Record<string, unknown>,
+      };
+    }
+  );
+
+  // ── delete_bill ────────────────────────────────────────────────────────────
+  server.registerTool(
+    "delete_bill",
+    {
+      title: "Delete QuickBooks Bill",
+      description:
+        "Delete (void) a QuickBooks accounts payable bill. Requires billId and syncToken (from get_bill). This permanently deletes the bill — it cannot be recovered. Only unpaid bills can be deleted.",
+      inputSchema: {
+        billId: z.string().describe("Bill ID to delete"),
+        syncToken: z.string().describe("SyncToken from get_bill (required for optimistic locking)"),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false },
+    },
+    async (args) => {
+      const result = await logger.time(
+        "tool.delete_bill",
+        () => client.post("/bill?operation=delete", {
+          Id: args.billId,
+          SyncToken: args.syncToken,
+        }),
+        { tool: "delete_bill", billId: args.billId as string }
       );
 
       return {
